@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define PAWNS 2 //hardcoding pawns number at the moment
+
 
 typedef struct Coord {
     int x;
@@ -21,9 +23,9 @@ int contains_pawn(Cell *board, int col, int row);
 
 
 int main() {
-    Cell *board = (Cell *)malloc(sizeof(Cell));
+    Cell *board = (Cell *)malloc((PAWNS + 1) * sizeof(Cell));
 
-    init_board(board, 3, 3, 2);
+    init_board(board, 3, 3, PAWNS);
 
     printf("contains pawn %d\n", contains_pawn(board, 1, 1));
     printf("contains pawn %d\n", contains_pawn(board, 1, 2));
@@ -65,7 +67,7 @@ void init_board(Cell *board, int cols, int rows, int pawns){
 	board[i].nimber = nimber(1, i, cols, rows);
 	board[i].coordinates = (Coord){.x = 1, .y = i + 1};
     }
-    board[++i] = (Cell){.nimber = -1, (Coord){.x = -1, .y = -1}};
+    board[i] = (Cell){.nimber = -1, (Coord){.x = -1, .y = -1}};
 }
 
 /* Returns the number of pawns a cell contains. */
