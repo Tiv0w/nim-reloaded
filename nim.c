@@ -26,6 +26,8 @@ int contains_pawn(Cell *board, int col, int row);
 void display_board(Cell *board, int cols, int rows);
 int nim_add(Cell *board);
 void display_nimber(int cols, int rows);
+void compute_neighbors(Coord *neighbors, int col, int row, int cols, int rows);
+void print_neighbors(Coord *neighbors);
 
 
 int main() {
@@ -41,6 +43,10 @@ int main() {
     display_board(board, COLS, ROWS);
 
     printf("nim-add: %d\n", nim_add(board));
+
+    Coord *neighbors = (Coord *)malloc(sizeof(Coord));
+    compute_neighbors(neighbors, 2, 2, COLS, ROWS);
+    print_neighbors(neighbors);
     return 0;
 }
 
@@ -151,5 +157,34 @@ void display_nimber(int cols, int rows){
 	    printf(" %d |", nimber(j, i, cols, rows));
 	}
 	printf("\n%s\n", separation);
+    }
+}
+
+/* Create the array of neighbors cells from the given cell */
+void compute_neighbors(Coord *neighbors, int col, int row, int cols, int rows){
+    int index = 0;
+    int col_gap = cols - col;
+    int row_gap = rows - row;
+
+    if (col_gap > 0)
+	neighbors[index++] = (Coord){.x = (col + 1), .y = row};
+    if (col_gap > 1)
+	neighbors[index++] = (Coord){.x = (col + 2), .y = row};
+    if (row_gap > 0)
+	neighbors[index++] = (Coord){.x = col, .y = (row + 1)};
+    if (row_gap > 1)
+	neighbors[index++] = (Coord){.x = col, .y = (row + 2)};
+
+    neighbors[index] = (Coord){.x = -1, .y = -1};
+}
+
+/* Displays the neighbors
+ * ONLY FOR DEBUGGING PURPOSES
+ */
+void print_neighbors(Coord *neighbors){
+    int i = 0;
+    while (neighbors[i].x != -1) {
+	printf("neighbor[%d]: %d, %d\n", i, neighbors[i].x, neighbors[i].y);
+	i++;
     }
 }
