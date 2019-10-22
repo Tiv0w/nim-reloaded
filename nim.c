@@ -3,7 +3,7 @@
 #include <string.h>
 #include <time.h>
 
-#define PAWNS 2 //hardcoding at the moment
+#define PAWNS 1 //hardcoding at the moment
 #define COLS 3
 #define ROWS 3
 
@@ -30,6 +30,7 @@ void display_nimber(int cols, int rows);
 void compute_neighbors(Coord *neighbors, int col, int row, int cols, int rows);
 void print_neighbors(Coord *neighbors);
 int random_up_to(int upper);
+void update_board(Cell *board, int pawn_index, Coord new_position, int cols, int rows);
 
 
 int main() {
@@ -52,7 +53,12 @@ int main() {
     compute_neighbors(neighbors, 2, 2, COLS, ROWS);
     print_neighbors(neighbors);
 
-    printf("%d\n", random_up_to(8));
+    printf("(test) random up to 8: %d\n", random_up_to(8));
+
+    Coord test_move = (Coord){.x = 3, .y = 3};
+    update_board(board, 0, test_move, COLS, ROWS);
+    display_board(board, COLS, ROWS);
+
     return 0;
 }
 
@@ -198,4 +204,25 @@ void print_neighbors(Coord *neighbors){
 /* Generate a random number between 1 and the upper bound (included) */
 int random_up_to(int upper){
     return rand() % (upper - 1) + 1;
+}
+
+/* Updates the board depending on the current move.
+ * Takes the index of the moving pawn, the new position as Coord,
+ * the total columbs and rows
+ */
+void update_board(Cell *board, int pawn_index, Coord new_position, int cols, int rows){
+    board[pawn_index].coordinates = new_position;
+    board[pawn_index].nimber = nimber(new_position.x, new_position.y, cols, rows);
+
+    if (contains_pawn(board, cols, rows)) {
+	int i = pawn_index;
+	while (board[i].nimber != -1) {
+	    board[i] = board[i+1];
+	    i++;
+	}
+	board[i] = (Cell){.nimber = -1, (Coord){.x = -1, .y = -1}};
+    }
+
+    if (board[0].nimber == -1)
+	printf("End\n");
 }
