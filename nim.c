@@ -226,3 +226,15 @@ void update_board(Cell *board, int pawn_index, Coord new_position, int cols, int
     if (board[0].nimber == -1)
 	printf("End\n");
 }
+
+Coord player_move(Cell *board, int cols, int rows){
+    int i = 0;
+    Coord cell_coord;
+    Coord *neighbors = (Coord *)malloc(5 * sizeof(Coord));
+
+    while (board[i].nimber != -1) {
+	cell_coord = board[i].coordinates;
+	compute_neighbors(neighbors, cell_coord.x, cell_coord.y, cols, rows);
+
+    }
+}
