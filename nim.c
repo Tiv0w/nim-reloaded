@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define PAWNS 2 //hardcoding at the moment
 #define COLS 3
@@ -28,9 +29,12 @@ int nim_add(Cell *board);
 void display_nimber(int cols, int rows);
 void compute_neighbors(Coord *neighbors, int col, int row, int cols, int rows);
 void print_neighbors(Coord *neighbors);
+int random_up_to(int upper);
 
 
 int main() {
+    srand(time(NULL));
+
     Cell *board = (Cell *)malloc((PAWNS + 1) * sizeof(Cell));
 
     init_board(board, COLS, ROWS, PAWNS);
@@ -47,6 +51,8 @@ int main() {
     Coord *neighbors = (Coord *)malloc(sizeof(Coord));
     compute_neighbors(neighbors, 2, 2, COLS, ROWS);
     print_neighbors(neighbors);
+
+    printf("%d\n", random_up_to(8));
     return 0;
 }
 
@@ -187,4 +193,9 @@ void print_neighbors(Coord *neighbors){
 	printf("neighbor[%d]: %d, %d\n", i, neighbors[i].x, neighbors[i].y);
 	i++;
     }
+}
+
+/* Generate a random number between 1 and the upper bound (included) */
+int random_up_to(int upper){
+    return rand() % (upper - 1) + 1;
 }
