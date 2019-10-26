@@ -234,9 +234,11 @@ void print_neighbors(Coord *neighbors){
     }
 }
 
-/* Generate a random number between 1 and the upper bound (included) */
+/* Generate a random number between 0 and the upper bound (excluded) */
 int random_up_to(int upper){
-    return rand() % (upper - 1) + 1;
+    if (upper < 1)
+	return 0;
+    return rand() % upper;
 }
 
 /* Updates the board depending on the current move.
@@ -265,19 +267,15 @@ int update_board(Cell *board, int pawn_index, Coord new_position, int cols, int 
 
 /* Let the player select the move */
 int player_move(Cell *board, int cols, int rows){
-    printf("not here 5\n");
-    int i = 0;
-    int selected_pawn, selected_neighbor;
+    int i, selected_pawn, selected_neighbor;
     Coord pawn_coord, neighbor_coord;
     Coord *neighbors = (Coord *)malloc(5 * sizeof(Coord));
 
-    printf("Your turn!\nSelect a pawn: ");
-    while (board[i].nimber != -1) {
-	printf("%d:(%d, %d),  ", i, board[i].coordinates.x, board[i].coordinates.y);
-	i++;
-    }
+    printf("\n\nYour turn!\nSelect a pawn: ");
+    for (i = 0; board[i].nimber != -1; i++)
+	printf("%d:(%d, %d) ", i, board[i].coordinates.x, board[i].coordinates.y);
     do {
-	printf("\nSelection: ");
+	printf("\n---> ");
 	scanf("%d", &selected_pawn);
 	if (selected_pawn < 0 || selected_pawn >= i)
 	    printf("Invalid selection!\n");
@@ -287,13 +285,10 @@ int player_move(Cell *board, int cols, int rows){
     compute_neighbors(neighbors, pawn_coord.x, pawn_coord.y, cols, rows);
 
     printf("\nSelect a destination: ");
-    i = 0;
-    while (neighbors[i].x != -1) {
-	printf("%d:(%d, %d),  ", i, neighbors[i].x, neighbors[i].y);
-	i++;
-    }
+    for (i = 0; neighbors[i].x != -1; i++)
+	printf("%d:(%d, %d)  ", i, neighbors[i].x, neighbors[i].y);
     do {
-	printf("\nSelection: ");
+	printf("\n---> ");
 	scanf("%d", &selected_neighbor);
 	if (selected_neighbor < 0 || selected_neighbor >= i)
 	    printf("Invalid selection!\n");
@@ -305,77 +300,59 @@ int player_move(Cell *board, int cols, int rows){
 
 /* Makes a random move */
 int random_move(Cell *board, int cols, int rows){
-    printf("not here 4\n");
-    int i = 0;
+    int i, selected_pawn, selected_neighbor;
+    Coord pawn_coord, neighbor_coord;
     Coord *neighbors = (Coord *)malloc(5 * sizeof(Coord));
-    printf("pb: 1\n");
-    while (board[i].nimber != -1) {
-	i++;
-    }
-    printf("pb: 2\n");
-    int selected_pawn = random_up_to(i);
-    printf("pb: 2,5\n");
-    Coord pawn_coord = board[selected_pawn].coordinates;
-    printf("pb: 3\n");
+
+    for (i = 0; board[i].nimber != -1; i++);
+    selected_pawn = random_up_to(i);
+    pawn_coord = board[selected_pawn].coordinates;
     compute_neighbors(neighbors, pawn_coord.x, pawn_coord.y, cols, rows);
 
-    i = 0;
-    while (neighbors[i].x != -1) {
-	i++;
-    }
-    printf("pb: 4\n");
-    int selected_neighbor = random_up_to(i);
-    Coord neighbor_coord = neighbors[selected_neighbor];
-    printf("pb: 5\n");
+    for (i = 0; neighbors[i].x != -1; i++);
+    selected_neighbor = random_up_to(i);
+    neighbor_coord = neighbors[selected_neighbor];
     return update_board(board, selected_pawn, neighbor_coord, cols, rows);
 }
 
 /* Makes a winning move, and if none is available, a random move */
 int winning_move(Cell *board, int cols, int rows){
-    printf("not here 3\n");
-    int i = 0;
-    int j = 0;
+    int i, j;
     Coord pawn_coord, neighbor_coord;
     Coord *neighbors = (Coord *)malloc(5 * sizeof(Coord));
     int nim_total = nim_add(board);
 
-    while (board[i].nimber != -1) {
+    for (i = 0; board[i].nimber != -1; i++) {
 	pawn_coord = board[i].coordinates;
 	compute_neighbors(neighbors, pawn_coord.x, pawn_coord.y, cols, rows);
 
-	while (neighbors[j].x != -1) {
+	for (j = 0; neighbors[j].x != -1; j++) {
 	    neighbor_coord = neighbors[j];
 	    int new_nimber = nimber(neighbor_coord.x, neighbor_coord.y, cols, rows);
-	    if (new_nimber == board[i].nimber + nim_total) {
+	    if (new_nimber == (board[i].nimber ^ nim_total))
 		return update_board(board, i, neighbor_coord, cols, rows);
-	    } else {
-		return random_move(board, cols, rows);
-	    }
-	    j++;
 	}
-	i++;
     }
-    return 1;
+    return random_move(board, cols, rows);
 }
 
 /* Makes a bot_move, depending on the difficulty */
 int bot_move(Cell *board, int cols, int rows, int difficulty){
-    printf("not here 2\n");
     switch (difficulty) {
     case 1:
-	if (random_up_to(100) <= 10)
+	if (random_up_to(100) < 10)
 	    return winning_move(board, cols, rows);
 	else
 	    return random_move(board, cols, rows);
 	break;
     case 2:
-	if (random_up_to(100) <= 50)
+	if (random_up_to(100) < 50)
 	    return winning_move(board, cols, rows);
 	else
 	    return random_move(board, cols, rows);
 	break;
     case 3:
-	if (random_up_to(100) <= 90)
+	if (random_up_to(100) < 90)
 	    return winning_move(board, cols, rows);
 	else
 	    return random_move(board, cols, rows);
