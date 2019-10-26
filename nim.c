@@ -40,57 +40,32 @@ int bot_move(Cell *board, int cols, int rows, int difficulty);
 
 
 int main() {
+    int state = 1;
+    int cols, rows, pawns, first, level;
     srand(time(NULL));
 
-    Cell *board = (Cell *)malloc((PAWNS + 1) * sizeof(Cell));
+    read_game_params(&cols, &rows, &pawns, &first, &level);
 
-    init_board(board, COLS, ROWS, PAWNS);
+    Cell *board = (Cell *)malloc((pawns + 1) * sizeof(Cell));
+    init_board(board, cols, rows, pawns);
 
-    printf("contains pawn %d\n", contains_pawn(board, 1, 1));
-    printf("contains pawn %d\n", contains_pawn(board, 1, 2));
+    /* display_nimber(cols, rows); */
 
-    display_nimber(COLS, ROWS);
-
-    display_board(board, COLS, ROWS);
-
-    printf("nim-add: %d\n", nim_add(board));
-
-    Coord *neighbors = (Coord *)malloc(sizeof(Coord));
-    compute_neighbors(neighbors, 2, 2, COLS, ROWS);
-    print_neighbors(neighbors);
-
-    printf("(test) random up to 8: %d\n", random_up_to(8));
-
-    /* Coord test_move = (Coord){.x = 3, .y = 3}; */
-    /* update_board(board, 0, test_move, COLS, ROWS); */
-    /* player_move(board, COLS, ROWS); */
-
-    int state = 1;
-    /* int first = FIRST; */
-    /* printf("not here 1\n"); */
-    /* while (state != 0) { */
-    /* 	printf("not here 1\n"); */
-    /* 	if (first == 1) { */
-    /* 	    printf("not here 7\n"); */
-    /* 	    state = bot_move(board, COLS, ROWS, LEVEL); */
-    /* 	    printf("not here 8\n"); */
-    /* 	    first = 2; */
-    /* 	} else { */
-    /* 	    printf("not here 9\n"); */
-    /* 	    state = player_move(board, COLS, ROWS); */
-    /* 	    printf("not here 0\n"); */
-    /* 	    first = 1; */
-    /* 	} */
-    /* 	display_board(board, COLS, ROWS); */
-    /* 	printf("not here 6\n"); */
-    /* } */
-
-    /* state = bot_move(board, COLS, ROWS, LEVEL); */
-    state = random_move(board, COLS, ROWS);
-
-    printf("state: %d\n", state);
-    /* state = player_move(board, COLS, ROWS); */
-    display_board(board, COLS, ROWS);
+    display_board(board, cols, rows);
+    while (state != 0) {
+    	if (first == 1) {
+    	    state = bot_move(board, cols, rows, level);
+    	    first = 2;
+    	} else {
+    	    state = player_move(board, cols, rows);
+    	    first = 1;
+    	}
+    	display_board(board, cols, rows);
+    }
+    if (first == 1)
+	printf("\n\nYou just won!\n-------------\n\n");
+    else
+	printf("\n\nThe machine was better than you!\n--------------------------------\n\n");
 
     return 0;
 }
@@ -114,7 +89,7 @@ void read_game_params(int *rows, int *cols, int *pawns, int *first, int *level){
     *rows = read_int_in_bounds(3, 30);
     printf("Columns: (3-30) ");
     *cols = read_int_in_bounds(3, 30);
-    printf("Pawns: (3-30) ");
+    printf("Pawns: (1-%d) ", *rows);
     *pawns = read_int_in_bounds(1, *rows);
     printf("Level of difficulty: (1-3) ");
     *level = read_int_in_bounds(1, 3);
