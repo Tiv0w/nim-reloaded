@@ -31,6 +31,7 @@ void compute_neighbors(Coord *neighbors, int col, int row, int cols, int rows);
 void print_neighbors(Coord *neighbors);
 int random_up_to(int upper);
 void update_board(Cell *board, int pawn_index, Coord new_position, int cols, int rows);
+void player_move(Cell *board, int cols, int rows);
 
 
 int main() {
@@ -56,7 +57,8 @@ int main() {
     printf("(test) random up to 8: %d\n", random_up_to(8));
 
     Coord test_move = (Coord){.x = 3, .y = 3};
-    update_board(board, 0, test_move, COLS, ROWS);
+    /* update_board(board, 0, test_move, COLS, ROWS); */
+    player_move(board, COLS, ROWS);
     display_board(board, COLS, ROWS);
 
     return 0;
@@ -227,14 +229,41 @@ void update_board(Cell *board, int pawn_index, Coord new_position, int cols, int
 	printf("End\n");
 }
 
-Coord player_move(Cell *board, int cols, int rows){
+/* Let the player select the move */
+void player_move(Cell *board, int cols, int rows){
     int i = 0;
-    Coord cell_coord;
+    int selected_pawn, selected_neighbor;
+    Coord pawn_coord, neighbor_coord;
     Coord *neighbors = (Coord *)malloc(5 * sizeof(Coord));
 
+    printf("Your turn!\nSelect a pawn: ");
     while (board[i].nimber != -1) {
-	cell_coord = board[i].coordinates;
-	compute_neighbors(neighbors, cell_coord.x, cell_coord.y, cols, rows);
-
+	printf("%d:(%d, %d),  ", i, board[i].coordinates.x, board[i].coordinates.y);
+	i++;
     }
+    do {
+	printf("\nSelection: ");
+	scanf("%d", &selected_pawn);
+	if (selected_pawn < 0 || selected_pawn >= i)
+	    printf("Invalid selection!\n");
+    } while (selected_pawn < 0 || selected_pawn >= i);
+
+    pawn_coord = board[selected_pawn].coordinates;
+    compute_neighbors(neighbors, pawn_coord.x, pawn_coord.y, cols, rows);
+
+    printf("\nSelect a destination: ");
+    i = 0;
+    while (neighbors[i].x != -1) {
+	printf("%d:(%d, %d),  ", i, neighbors[i].x, neighbors[i].y);
+	i++;
+    }
+    do {
+	printf("\nSelection: ");
+	scanf("%d", &selected_neighbor);
+	if (selected_neighbor < 0 || selected_neighbor >= i)
+	    printf("Invalid selection!\n");
+    } while (selected_neighbor < 0 || selected_neighbor >= i);
+
+    neighbor_coord = neighbors[selected_neighbor];
+    update_board(board, selected_pawn, neighbor_coord, cols, rows);
 }
